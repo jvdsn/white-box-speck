@@ -22,7 +22,7 @@ ImportError: No module named sage
 ```
 
 # Usage
-The `test.sh` file included in this repository is a simple Bash script which tests the program using the test vectors for block size 32, 64, and 128 bits. Reading through this file is a good first introduction to the project.
+The `test.sh` file included in this repository is a simple Bash script which tests the program using the Speck test vectors. Reading through this file is a good first introduction to the project.
 
 To generate white-box Speck encryption implementations manually, you will need to execute the `main.py` file:
 ```
@@ -30,7 +30,7 @@ python src/main.py -h
 ```
 This will output the help dialogue with possible arguments, copied here for your convenience:
 ```
-usage: main.py [-h] [--block-size [{32,64,128}]] [--key-size [{64,96,128,192,256}]] [--output-dir [OUTPUT_DIR]] [--self-equivalences [{affine,linear}]] [--debug] key [key ...]
+usage: main.py [-h] [--block-size [{32,48,64,96,128}]] [--key-size [{64,72,96,128,144,192,256}]] [--output-dir [OUTPUT_DIR]] [--self-equivalences [{affine,linear}]] [--debug] key [key ...]
 
 Generate a white-box Speck implementation using self-equivalence encodings
 
@@ -39,9 +39,9 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --block-size [{32,64,128}]
+  --block-size [{32,48,64,96,128}]
                         the block size in bits of the Speck implementation (default: 128)
-  --key-size [{64,96,128,192,256}]
+  --key-size [{64,72,96,128,144,192,256}]
                         the key size in bits of the Speck implementation (default: 256)
   --output-dir [OUTPUT_DIR]
                         the directory to output the C files to (default: .)

@@ -19,8 +19,8 @@ from white_box_speck import WhiteBoxSpeck
 
 parser = ArgumentParser(description="Generate a white-box Speck implementation using self-equivalence encodings")
 parser.add_argument("key", nargs="+", help="the key to use for the Speck implementation, a hexadecimal representation of the words")
-parser.add_argument("--block-size", nargs="?", type=int, default=128, choices=[32, 64, 128], help="the block size in bits of the Speck implementation (default: %(default)i)")
-parser.add_argument("--key-size", nargs="?", type=int, default=256, choices=[64, 96, 128, 192, 256], help="the key size in bits of the Speck implementation (default: %(default)i)")
+parser.add_argument("--block-size", nargs="?", type=int, default=128, choices=[32, 48, 64, 96, 128], help="the block size in bits of the Speck implementation (default: %(default)i)")
+parser.add_argument("--key-size", nargs="?", type=int, default=256, choices=[64, 72, 96, 128, 144, 192, 256], help="the key size in bits of the Speck implementation (default: %(default)i)")
 parser.add_argument("--output-dir", nargs="?", default=".", help="the directory to output the C files to (default: %(default)s)")
 parser.add_argument("--self-equivalences", nargs="?", default="affine", choices=["affine", "linear"], help="the type of self-equivalences to use (default: %(default)s)")
 parser.add_argument("--debug", action="store_true", help="log debug messages")
@@ -71,9 +71,11 @@ logging.debug("Generating inlined bit-packed code...")
 with open(args.output_dir + "/inlined_bit_packed_white_box_speck.c", "w") as f:
     f.write(InlinedBitPackedCodeGenerator().generate_code(matrices, vectors))
 
-logging.debug("Generating SIMD code...")
-with open(args.output_dir + "/simd_white_box_speck.c", "w") as f:
-    f.write(SIMDCodeGenerator().generate_code(matrices, vectors))
+# SIMD code does not accept n = 24 or n = 48
+if word_size != 24 and word_size != 48:
+    logging.debug("Generating SIMD code...")
+    with open(args.output_dir + "/simd_white_box_speck.c", "w") as f:
+        f.write(SIMDCodeGenerator().generate_code(matrices, vectors))
 
 logging.debug("Generating external encodings code...")
 with open(args.output_dir + "/inverse_input_external_encoding.c", "w") as f:

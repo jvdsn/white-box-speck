@@ -9,19 +9,25 @@ class CodeGenerator(ABC):
 
     _WORD_TYPES = {
         16: "uint16_t",
+        24: "uint32_t",
         32: "uint32_t",
+        48: "uint64_t",
         64: "uint64_t",
     }
 
     _WORD_IN_TYPES = {
         16: "SCNx16",
+        24: "SCNx32",
         32: "SCNx32",
+        48: "SCNx64",
         64: "SCNx64",
     }
 
     _WORD_OUT_TYPES = {
         16: "PRIx16",
+        24: "PRIx32",
         32: "PRIx32",
+        48: "PRIx64",
         64: "PRIx64",
     }
 

@@ -8,13 +8,17 @@ class BitPackedCodeGenerator(CodeGenerator):
 
     _WORD_CONSTANT_TYPES = {
         16: "UINT16_C",
+        24: "UINT32_C",
         32: "UINT32_C",
+        48: "UINT64_C",
         64: "UINT64_C",
     }
 
     _WORD_PARITY_FUNCTIONS = {
         16: "__builtin_parity",
+        24: "__builtin_parityl",
         32: "__builtin_parityl",
+        48: "__builtin_parityll",
         64: "__builtin_parityll",
     }
 
@@ -37,7 +41,7 @@ class BitPackedCodeGenerator(CodeGenerator):
 
     _MODULAR_ADDITION = (
         "void modular_addition(WORD_TYPE xy[2]) {\n"
-        "    xy[0] += xy[1];\n"
+        "    xy[0] = (xy[0] + xy[1]) & WORD_MASK;\n"
         "}\n"
     )
 
@@ -88,6 +92,9 @@ class BitPackedCodeGenerator(CodeGenerator):
 
         return f"#define WORD_PARITY_FUNCTION {self._WORD_PARITY_FUNCTIONS[word_size]}\n"
 
+    def _define_word_mask(self, word_size):
+        return f"#define WORD_MASK 0x{(1 << word_size) - 1:02x}\n"
+
     def _defines(self, block_size, word_size, rounds):
         return self._define_block_size(block_size) + \
                self._define_word_size(word_size) + \
@@ -96,6 +103,7 @@ class BitPackedCodeGenerator(CodeGenerator):
                self._define_word_out_type(word_size) + \
                self._define_word_constant_type(word_size) + \
                self._define_word_parity_function(word_size) + \
+               self._define_word_mask(word_size) + \
                self._define_rounds(rounds)
 
     def _matrices(self, matrices):

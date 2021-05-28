@@ -49,6 +49,7 @@ class SIMDCodeGenerator(BitPackedCodeGenerator):
                self._define_word_out_type(word_size) + \
                self._define_word_constant_type(word_size) + \
                self._define_word_parity_function(word_size) + \
+               self._define_word_mask(word_size) + \
                self._define_rounds(rounds) + \
                self._define_simd_packed_count(simd_packed_count) + \
                self._define_simd_type() + \
