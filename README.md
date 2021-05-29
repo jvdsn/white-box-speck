@@ -1,5 +1,5 @@
 # Introduction 
-This repository contains the code for my master's thesis: "A White-Box Speck implementation using Self-Equivalence Encodings". The code can roughly be divided in six parts:
+This repository contains the code for my master's thesis: "A White-Box Speck Implementation using Self-Equivalence Encodings". The code can roughly be divided in six parts:
 * `src/code_generator/`: this directory contains all code related to output code generation, including the different code generation strategies.
 * `src/self_equivalences/`: this directory contains all code related to the generation of (random) linear and affine self-equivalences, as well as combining these self-equivalences.
 * `src/white_box_speck.py`: this file contains the `WhiteBoxSpeck` class, responsible for generating the encoded matrices and vectors when a Speck key is provided.
