@@ -8,25 +8,14 @@ This repository contains the code for my master's thesis: "A White-Box Speck Imp
 * `src/attacks.py`: this file is special. It contains a proof-of-concept implementation of the attack to recover linear self-equivalence encodings and external encodings from a white-box Speck implementation.
 
 # Requirements
-This project uses Python 3 and the [SageMath](https://www.sagemath.org/) package. `sage` must be available on your Python path to run this code.
-
-To test, you can run the following command:
-```
-python -c "import sage.all"
-```
-If all is well, this command should have no output. If `sage` is not installed (properly), you will get the following output:
-```
-Traceback (most recent call last):
-  File "<module>", line 1, in <module>
-ImportError: No module named sage
-```
+This project uses Python 3 and the [SageMath](https://www.sagemath.org/) package.
 
 # Usage
 The `test.sh` file included in this repository is a simple Bash script which tests the program using the Speck test vectors. Reading through this file is a good first introduction to the project.
 
 To generate white-box Speck encryption implementations manually, you will need to execute the `main.py` file:
 ```
-python src/main.py -h
+sage -python src/main.py -h
 ```
 This will output the help dialogue with possible arguments, copied here for your convenience:
 ```
@@ -75,22 +64,22 @@ In general, the bit-packed code generation strategy is the most efficient overal
 ## Some examples
 Generating a white-box `Speck32/64` implementation using only linear self-equivalences (just for demonstration purposes, linear self-equivalences are insecure):
 ```
-python src/main.py --block-size 32 --key-size 64 --self-equivalences linear 1918 1110 0908 0100
+sage -python src/main.py --block-size 32 --key-size 64 --self-equivalences linear 1918 1110 0908 0100
 ```
 
 Generating a white-box `Speck64/128` implementation with debug logging enabled:
 ```
-python src/main.py --block-size 64 --key-size 128 --debug 1b1a1918 13121110 0b0a0908 03020100
+sage -python src/main.py --block-size 64 --key-size 128 --debug 1b1a1918 13121110 0b0a0908 03020100
 ```
 
 Generating a white-box `Speck128/256` implementation in the `out` directory:
 ```
-python src/main.py --block-size 128 --key-size 256 --output-dir out 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+sage -python src/main.py --block-size 128 --key-size 256 --output-dir out 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 ```
 
 ## Attacks
 As mentioned, `attacks.py` contains a proof-of-concept implementation of the attack to recover linear self-equivalence encodings and external encodings from a white-box Speck implementation. This file can also be executed:
 ```
-python src/attacks.py
+sage -python src/attacks.py
 ```
 This will output the results of the attack (i.e. whether the master key and external encodings could be recovered), for each Speck parameter set.

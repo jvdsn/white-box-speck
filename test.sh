@@ -51,7 +51,7 @@ STRATEGIES=(
 
 for ((i = 0; i < ${#BLOCK_SIZES[@]}; i++)); do
     echo "Testing Speck${BLOCK_SIZES[i]}/${KEY_SIZES[i]} with key '${KEYS[i]}'"
-    python src/main.py --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --debug ${KEYS[i]}
+    sage -python src/main.py --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --debug ${KEYS[i]}
 
     gcc -o inverse_input_external_encoding inverse_input_external_encoding.c
     gcc -o inverse_output_external_encoding inverse_output_external_encoding.c
