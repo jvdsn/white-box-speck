@@ -146,6 +146,7 @@ class WhiteBoxSpeck:
         matrices.append(m_mid * input_external_encoding[0])
         vectors.append(m_mid * (self._xor_round_key_vector(self._k[0]) + input_external_encoding[1]))
 
+        print("[" + "=" * 1 + " " * (self.rounds - 1) + "]", end="\r", flush=True)
         for r in range(2, self.rounds + 1):
             # Generating self-equivalences and applying them to previous linear layer.
             O, o, I, i = self_equivalence_provider.random_self_equivalence()
@@ -157,6 +158,7 @@ class WhiteBoxSpeck:
             else:
                 matrices.append(m_last * I)
                 vectors.append(m_last * (self._xor_round_key_vector(self._k[r - 1]) + i))
+            print("[" + "=" * r + " " * (self.rounds - r) + "]", end="\r", flush=True)
 
         matrices[self.rounds] = output_external_encoding[0] * matrices[self.rounds]
         vectors[self.rounds] = output_external_encoding[0] * vectors[self.rounds] + output_external_encoding[1]
