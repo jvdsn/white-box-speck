@@ -2,6 +2,7 @@
 
 BLOCK_SIZES=(32 48 48 64 64 96 96 128 128 128)
 KEY_SIZES=(64 72 96 96 128 96 144 128 192 256)
+SELF_EQUIVALENCES=("affine" "linear")
 # From Speck test vectors.
 KEYS=(
 "1918 1110 0908 0100"
@@ -50,24 +51,26 @@ STRATEGIES=(
 )
 
 for ((i = 0; i < ${#BLOCK_SIZES[@]}; i++)); do
-    echo "Testing Speck${BLOCK_SIZES[i]}/${KEY_SIZES[i]} with key '${KEYS[i]}'"
-    sage -python src/main.py --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --debug ${KEYS[i]}
+    for self_equivalences in "${SELF_EQUIVALENCES[@]}"; do
+        echo "Testing Speck${BLOCK_SIZES[i]}/${KEY_SIZES[i]} with $self_equivalences self equivalences and key '${KEYS[i]}'"
+        sage -python src/main.py --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --self-equivalences $self_equivalences --debug ${KEYS[i]}
 
-    gcc -o inverse_input_external_encoding inverse_input_external_encoding.c
-    gcc -o inverse_output_external_encoding inverse_output_external_encoding.c
+        gcc -o inverse_input_external_encoding inverse_input_external_encoding.c
+        gcc -o inverse_output_external_encoding inverse_output_external_encoding.c
 
-    for strategy in "${STRATEGIES[@]}"; do
-        if [ -f $strategy ]; then
-            gcc -march=native -o speck $strategy
-            ciphertext=$(./inverse_output_external_encoding $(./speck $(./inverse_input_external_encoding ${PLAINTEXTS[i]})))
-            echo "Expected '${CIPHERTEXTS[i]}', got '$ciphertext'"
-            rm speck
-            rm $strategy
-        fi
+        for strategy in "${STRATEGIES[@]}"; do
+            if [ -f $strategy ]; then
+                gcc -march=native -o speck $strategy
+                ciphertext=$(./inverse_output_external_encoding $(./speck $(./inverse_input_external_encoding ${PLAINTEXTS[i]})))
+                echo "expected '${CIPHERTEXTS[i]}', got '$ciphertext' ($strategy)"
+                rm speck
+                rm $strategy
+            fi
+        done
+
+        rm inverse_input_external_encoding
+        rm inverse_output_external_encoding
+        rm inverse_input_external_encoding.c
+        rm inverse_output_external_encoding.c
     done
-
-    rm inverse_input_external_encoding
-    rm inverse_output_external_encoding
-    rm inverse_input_external_encoding.c
-    rm inverse_output_external_encoding.c
 done
