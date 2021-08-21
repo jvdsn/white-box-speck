@@ -2,7 +2,6 @@ import logging
 from argparse import ArgumentParser
 from pathlib import Path
 
-import external_encodings
 from code_generator.bit_packed import BitPackedCodeGenerator
 from code_generator.default import DefaultCodeGenerator
 from code_generator.inlined import InlinedCodeGenerator
@@ -11,10 +10,10 @@ from code_generator.simd import SIMDCodeGenerator
 from code_generator.sparse_matrix import SparseMatrixCodeGenerator
 from external_encodings import InputExternalEncodingCodeGenerator
 from external_encodings import OutputExternalEncodingCodeGenerator
-from self_equivalences.affine import Type1AffineSelfEquivalenceProvider
-from self_equivalences.affine import Type2AffineSelfEquivalenceProvider
-from self_equivalences.combined import CombinedSelfEquivalenceProvider
-from self_equivalences.linear import LinearSelfEquivalenceProvider
+from external_encodings import random_affine_external_encoding
+from external_encodings import random_linear_external_encoding
+from self_equivalences.anf import AffineSelfEquivalenceProvider
+from self_equivalences.anf import LinearSelfEquivalenceProvider
 from white_box_speck import WhiteBoxSpeck
 
 parser = ArgumentParser(description="Generate a white-box Speck implementation using self-equivalence encodings")
@@ -36,13 +35,13 @@ white_box_speck = WhiteBoxSpeck(args.block_size, args.key_size, list(map(lambda 
 
 logging.debug(f"Generating random external encodings...")
 if args.self_equivalences == "affine":
-    self_equivalence_provider = CombinedSelfEquivalenceProvider(word_size, [Type1AffineSelfEquivalenceProvider(word_size), Type2AffineSelfEquivalenceProvider(word_size)])
-    input_external_encoding = external_encodings.random_affine_external_encoding(word_size)
-    output_external_encoding = external_encodings.random_affine_external_encoding(word_size)
+    self_equivalence_provider = AffineSelfEquivalenceProvider(word_size)
+    input_external_encoding = random_affine_external_encoding(word_size)
+    output_external_encoding = random_affine_external_encoding(word_size)
 else:
     self_equivalence_provider = LinearSelfEquivalenceProvider(word_size)
-    input_external_encoding = external_encodings.random_linear_external_encoding(word_size)
-    output_external_encoding = external_encodings.random_linear_external_encoding(word_size)
+    input_external_encoding = random_linear_external_encoding(word_size)
+    output_external_encoding = random_linear_external_encoding(word_size)
 
 logging.debug(f"Generating matrices and vectors using {args.self_equivalences} self-equivalences...")
 matrices, vectors = white_box_speck.affine_layers(input_external_encoding, output_external_encoding, self_equivalence_provider)
