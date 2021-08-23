@@ -12,8 +12,6 @@ from sage.rings.polynomial.pbori.pbori import BooleanPolynomialRing
 
 from self_equivalences import SelfEquivalenceProvider
 
-ring = GF(2)
-
 
 class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
     """
@@ -21,13 +19,17 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
     """
 
     @abstractmethod
-    def __init__(self, word_size, sobj_prefix, degree=1):
+    def __init__(self, ring, word_size, sobj_prefix, degree=1):
         """
         Initializes an instance of ANFSelfEquivalenceProvider with the provided parameters.
+        :param ring: the ring
         :param word_size: the word size
-        :param L: the matrix L
+        :param sobj_prefix: the prefix of the sobj file containing expressions and constraints
+        :param degree: the degree of the self-equivalences (default: 1)
         """
         assert word_size in [16, 24, 32, 48, 64]
+
+        super().__init__(ring, word_size)
 
         expressions, self.constraints = load(f"sobj/{sobj_prefix}{word_size}.sobj")
 
@@ -41,8 +43,9 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
         self.bpr = BooleanPolynomialRing(names=x_names + self.coefficient_names)
         xs = [self.bpr(x_name) for x_name in x_names]
 
-        zero = matrix(ring, word_size)
-        one = matrix.identity(ring, word_size)
+        gf2 = GF(2)
+        zero = matrix(gf2, word_size)
+        one = matrix.identity(gf2, word_size)
         am = matrix.block([
             [zero, one, one, zero],
             [one, one, one, zero],
@@ -131,15 +134,15 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
         :param coefficients: the coefficients to use
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
         """
-        A = self.A.subs(coefficients).change_ring(ring)
+        A = self.A.subs(coefficients).change_ring(self.ring)
         A.set_immutable()
         # change_ring does not work on vectors over BPR...
-        a = vector(ring, [ring(f.subs(coefficients)) for f in self.a])
+        a = vector(self.ring, [self.ring(f.subs(coefficients)) for f in self.a])
         a.set_immutable()
-        B = self.B.subs(coefficients).change_ring(ring).inverse()
+        B = self.B.subs(coefficients).change_ring(self.ring).inverse()
         B.set_immutable()
         # change_ring does not work on vectors over BPR...
-        b = B * vector(ring, [ring(f.subs(coefficients)) for f in self.b])
+        b = B * vector(self.ring, [self.ring(f.subs(coefficients)) for f in self.b])
         b.set_immutable()
         return A, a, B, b
 
@@ -148,6 +151,8 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
         Generates a random affine or linear self-equivalence of the function S(x, y) = (x + y, y).
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
         """
+        assert self.ring == GF(2)
+
         while True:
             coefficients = {self.bpr(coefficient_name): randint(0, 1) for coefficient_name in self.coefficient_names}
             if self._check_constraints(coefficients):
@@ -161,8 +166,13 @@ class AffineSelfEquivalenceProvider(ANFSelfEquivalenceProvider):
     Generates affine self-equivalences.
     """
 
-    def __init__(self, word_size):
-        super().__init__(word_size, "anf_affine_w")
+    def __init__(self, ring, word_size):
+        """
+        Initializes an instance of AffineSelfEquivalenceProvider with the provided parameters.
+        :param ring: the ring
+        :param word_size: the word size
+        """
+        super().__init__(ring, word_size, "anf_affine_w")
 
 
 class LinearSelfEquivalenceProvider(ANFSelfEquivalenceProvider):
@@ -170,5 +180,10 @@ class LinearSelfEquivalenceProvider(ANFSelfEquivalenceProvider):
     Generates linear self-equivalences.
     """
 
-    def __init__(self, word_size):
-        super().__init__(word_size, "anf_linear_w")
+    def __init__(self, ring, word_size):
+        """
+        Initializes an instance of LinearSelfEquivalenceProvider with the provided parameters.
+        :param ring: the ring
+        :param word_size: the word size
+        """
+        super().__init__(ring, word_size, "anf_linear_w")

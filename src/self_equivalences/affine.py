@@ -7,8 +7,6 @@ from sage.all import vector
 
 from self_equivalences import SelfEquivalenceProvider
 
-ring = GF(2)
-
 
 class AffineSelfEquivalenceProvider(SelfEquivalenceProvider):
     """
@@ -16,15 +14,16 @@ class AffineSelfEquivalenceProvider(SelfEquivalenceProvider):
     """
 
     @abstractmethod
-    def __init__(self, word_size, L):
+    def __init__(self, ring, word_size, L):
         """
         Initializes an instance of AffineSelfEquivalenceProvider with the provided parameters.
+        :param ring: the ring
         :param word_size: the word size
         :param L: the matrix L
         """
         assert word_size >= 3
 
-        self.word_size = word_size
+        super().__init__(ring, word_size)
         self.L = L
         self.Linv = L.inverse()
 
@@ -61,6 +60,8 @@ class AffineSelfEquivalenceProvider(SelfEquivalenceProvider):
         Generates a random affine self-equivalence of the function S(x, y) = (x + y, y).
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
         """
+        assert self.ring == GF(2)
+
         coefficients = [random.randint(0, 1) for _ in range(2 * self.word_size + 7)]
         return self.self_equivalence(coefficients)
 
@@ -70,9 +71,10 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
     Generates type 1 affine self-equivalences.
     """
 
-    def __init__(self, word_size):
+    def __init__(self, ring, word_size):
         """
         Initializes an instance of Type1AffineSelfEquivalenceProvider with the provided parameters.
+        :param ring: the ring
         :param word_size: the word size
         """
         self.zero = matrix(ring, word_size)
@@ -83,7 +85,7 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
             [self.zero, self.zero, self.one, self.zero],
             [self.zero, self.one, self.one, self.zero]
         ])
-        super().__init__(word_size, L)
+        super().__init__(ring, word_size, L)
 
     def _self_equivalence_implicit(self, coefficients):
         """
@@ -94,28 +96,28 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         ws = self.word_size
         assert len(coefficients) == 2 * ws + 7
 
-        C = matrix.identity(ring, ws)
+        C = matrix.identity(self.ring, ws)
         C[ws - 1, 0] = coefficients.pop()
         C[ws - 1, ws - 2] = coefficients.pop()
 
-        D = matrix.identity(ring, ws)
+        D = matrix.identity(self.ring, ws)
         for i in range(1, ws):
             D[ws - 1, i] = coefficients.pop()
 
-        E = matrix.identity(ring, ws)
+        E = matrix.identity(self.ring, ws)
         E[1, 0] = coefficients.pop()
         for i in range(1, ws - 1):
             E[ws - 1, i] = coefficients.pop()
 
-        F = matrix.identity(ring, ws)
+        F = matrix.identity(self.ring, ws)
         F[1, 0] = coefficients.pop()
         F[ws - 1, 0] = coefficients.pop()
         F[ws - 1, ws - 2] = coefficients.pop()
 
-        G = matrix(ring, ws)
+        G = matrix(self.ring, ws)
         G[ws - 1, 0] = coefficients.pop()
 
-        H = matrix(ring, ws)
+        H = matrix(self.ring, ws)
         H[ws - 1, 0] = coefficients.pop()
 
         D[ws - 1, 0] = F[1, 0] + F[ws - 1, 0] + G[ws - 1, 0]
@@ -137,14 +139,14 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         for i in range(1, ws - 1):
             H[i, 0] = E[1, 0] + F[1, 0]
 
-        I = matrix(ring, ws)
+        I = matrix(self.ring, ws)
         I[ws - 1, 0] = C[ws - 1, 0] + E[1, 0] + F[ws - 1, 0] + G[ws - 1, 0] + H[ws - 1, 0]
         for i in range(1, ws - 2):
             I[ws - 1, i] = D[ws - 1, i]
         I[ws - 1, ws - 2] = E[ws - 1, ws - 2] + F[ws - 1, ws - 2]
         I[ws - 1, ws - 1] = D[ws - 1, ws - 1] + 1
 
-        J = matrix(ring, ws)
+        J = matrix(self.ring, ws)
         for i in range(1, ws - 1):
             J[i, 0] = F[1, 0]
         J[ws - 1, 0] = F[1, 0] + G[ws - 1, 0]
@@ -153,7 +155,7 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         J[ws - 1, ws - 2] = D[ws - 1, ws - 2] + F[ws - 1, ws - 2]
         J[ws - 1, ws - 1] = D[ws - 1, ws - 1] + 1
 
-        a = vector(ring, ws * 4)
+        a = vector(self.ring, ws * 4)
         a[0] = F[1, 0]
         a[ws - 2] = D[ws - 1, ws - 2] + E[ws - 1, ws - 2] + F[ws - 1, ws - 2]
         a[ws - 1] = coefficients.pop()
@@ -171,7 +173,7 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
 
         assert len(coefficients) == 0
 
-        A = matrix.block(ring, [
+        A = matrix.block(self.ring, [
             [C, self.zero, G, G],
             [self.zero, D, I, self.zero],
             [self.zero, J, E, self.zero],
@@ -188,9 +190,10 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
     Generates type 2 affine self-equivalences.
     """
 
-    def __init__(self, word_size):
+    def __init__(self, ring, word_size):
         """
         Initializes an instance of Type2AffineSelfEquivalenceProvider with the provided parameters.
+        :param ring: the ring
         :param word_size: the word size
         """
         self.zero = matrix(ring, word_size)
@@ -201,7 +204,7 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
             [self.zero, self.zero, self.one, self.zero],
             [self.zero, self.zero, self.one, self.one]
         ])
-        super().__init__(word_size, L)
+        super().__init__(ring, word_size, L)
 
     def _self_equivalence_implicit(self, coefficients):
         """
@@ -219,35 +222,35 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         # Make sure the first two coefficients are not zero at the same time.
         assert not (C00 == 0 and D00 == 0)
 
-        C = matrix.identity(ring, ws)
+        C = matrix.identity(self.ring, ws)
         C[0, 0] = C00
         C[ws - 1, 0] = coefficients.pop()
 
-        D = matrix.identity(ring, ws)
+        D = matrix.identity(self.ring, ws)
         D[0, 0] = D00
         D[ws - 1, ws - 2] = coefficients.pop()
 
-        E = matrix.identity(ring, ws)
+        E = matrix.identity(self.ring, ws)
         for i in range(1, ws - 1):
             E[ws - 1, i] = coefficients.pop()
 
-        F = matrix.identity(ring, ws)
+        F = matrix.identity(self.ring, ws)
         F[ws - 1, 0] = coefficients.pop()
 
-        G = matrix.identity(ring, ws)
+        G = matrix.identity(self.ring, ws)
         for i in range(1, ws):
             G[ws - 1, i] = coefficients.pop()
 
-        H = matrix.identity(ring, ws)
+        H = matrix.identity(self.ring, ws)
         H[ws - 1, ws - 2] = coefficients.pop()
 
-        I = matrix(ring, ws)
+        I = matrix(self.ring, ws)
         I[ws - 1, 0] = coefficients.pop()
 
-        J = matrix(ring, ws)
+        J = matrix(self.ring, ws)
         J[ws - 1, 0] = coefficients.pop()
 
-        K = matrix(ring, ws)
+        K = matrix(self.ring, ws)
         K[0, 0] = D[0, 0] + C[0, 0]
         K[ws - 1, 0] = F[ws - 1, 0] * (C[0, 0] + D[0, 0]) + D[0, 0] * I[ws - 1, 0]
 
@@ -268,7 +271,7 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         J[ws - 1, ws - 2] = D[ws - 1, ws - 2] + E[ws - 1, ws - 2] * (G[ws - 1, ws - 1] + 1) + H[ws - 1, ws - 2]
         J[ws - 1, ws - 1] = G[ws - 1, ws - 1] + 1
 
-        L = matrix(ring, ws)
+        L = matrix(self.ring, ws)
         L[0, 0] = D[0, 0] + C[0, 0]
         L[ws - 1, 0] = C[0, 0] * C[ws - 1, 0] + C[0, 0] * J[ws - 1, 0] + D[0, 0] * C[ws - 1, 0] + E[ws - 1, 0] * G[ws - 1, ws - 1] + E[ws - 1, 0]
         for i in range(1, ws - 2):
@@ -285,7 +288,7 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         H[ws - 1, ws - 1] = G[ws - 1, ws - 1]
         H[ws - 1, 0] = D[ws - 1, 0] + L[ws - 1, 0]
 
-        M = matrix(ring, ws)
+        M = matrix(self.ring, ws)
         M[0, 0] = D[0, 0] + C[0, 0]
         M[ws - 1, 0] = D[ws - 1, 0] + E[ws - 1, 0] + K[ws - 1, 0] + L[ws - 1, 0]
         for i in range(1, ws - 2):
@@ -293,39 +296,39 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         M[ws - 1, ws - 2] = E[ws - 1, ws - 2] + H[ws - 1, ws - 2]
         M[ws - 1, ws - 1] = G[ws - 1, ws - 1] + 1
 
-        N = matrix(ring, ws)
+        N = matrix(self.ring, ws)
         N[0, 0] = D[0, 0] + C[0, 0]
         N[ws - 1, 0] = L[ws - 1, 0]
         for i in range(1, ws - 1):
             N[ws - 1, i] = E[ws - 1, i] + G[ws - 1, i]
         N[ws - 1, ws - 1] = G[ws - 1, ws - 1] + 1
 
-        O = matrix(ring, ws)
+        O = matrix(self.ring, ws)
         O[ws - 1, 0] = D[ws - 1, 0] + H[ws - 1, 0] + M[ws - 1, 0]
         for i in range(1, ws - 2):
             O[ws - 1, i] = E[ws - 1, i]
         O[ws - 1, ws - 2] = D[ws - 1, ws - 2] + E[ws - 1, ws - 2]
 
-        P = matrix(ring, ws)
+        P = matrix(self.ring, ws)
         P[ws - 1, 0] = D[ws - 1, 0] + G[ws - 1, 0]
         for i in range(1, ws - 1):
             P[ws - 1, i] = G[ws - 1, i]
         P[ws - 1, ws - 1] = G[ws - 1, ws - 1] + 1
 
-        Q = matrix(ring, ws)
+        Q = matrix(self.ring, ws)
         Q[ws - 1, 0] = E[ws - 1, 0] + G[ws - 1, 0] + K[ws - 1, 0]
         for i in range(1, ws - 1):
             Q[ws - 1, i] = E[ws - 1, i] + G[ws - 1, i]
         Q[ws - 1, ws - 1] = G[ws - 1, ws - 1] + 1
 
-        R = matrix(ring, ws)
+        R = matrix(self.ring, ws)
         R[ws - 1, 0] = K[ws - 1, 0] + M[ws - 1, 0]
         for i in range(1, ws - 2):
             R[ws - 1, i] = G[ws - 1, i]
         R[ws - 1, ws - 2] = E[ws - 1, ws - 2] + H[ws - 1, ws - 2]
         R[ws - 1, ws - 1] = G[ws - 1, ws - 1] + 1
 
-        a = vector(ring, ws * 4)
+        a = vector(self.ring, ws * 4)
         a[0] = D[0, 0] + C[0, 0]
         a[ws - 2] = E[ws - 1, ws - 2] + G[ws - 1, ws - 2] + H[ws - 1, ws - 2]
         a[ws - 1] = coefficients.pop()
@@ -357,6 +360,8 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         Generates a random type 2 affine self-equivalence of the function S(x, y) = (x + y, y).
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
         """
+        assert self.ring == GF(2)
+
         while True:
             coefficients = [random.randint(0, 1) for _ in range(2 * self.word_size + 7)]
             # Make sure the first two coefficients are not zero at the same time.
@@ -373,7 +378,7 @@ if __name__ == "__main__":
     ring = SR
     word_size = 64
 
-    self_equivalence_provider = Type1AffineSelfEquivalenceProvider(word_size)
+    self_equivalence_provider = Type1AffineSelfEquivalenceProvider(ring, word_size)
     coefficients = [var(f"x{i}") for i in range(2 * word_size + 7)]
     A, a, B, b = self_equivalence_provider.self_equivalence(coefficients)
     A_vars = set(A.variables())
@@ -382,7 +387,7 @@ if __name__ == "__main__":
     b_vars = set(sum([x.variables() for x in b], ()))
     print(len(A_vars), len(a_vars), len(B_vars), len(b_vars), len(A_vars | a_vars | B_vars | b_vars))
 
-    self_equivalence_provider = Type2AffineSelfEquivalenceProvider(word_size)
+    self_equivalence_provider = Type2AffineSelfEquivalenceProvider(ring, word_size)
     coefficients = [var(f"x{i}") for i in range(2 * word_size + 7)]
     A, a, B, b = self_equivalence_provider.self_equivalence(coefficients)
     A_vars = set(A.variables())
