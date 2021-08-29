@@ -2,8 +2,6 @@ import logging
 from argparse import ArgumentParser
 from pathlib import Path
 
-from sage.all import GF
-
 from code_generator.bit_packed import BitPackedCodeGenerator
 from code_generator.default import DefaultCodeGenerator
 from code_generator.inlined import InlinedCodeGenerator
@@ -17,8 +15,6 @@ from external_encodings import random_linear_external_encoding
 from self_equivalences.anf import AffineSelfEquivalenceProvider
 from self_equivalences.anf import LinearSelfEquivalenceProvider
 from white_box_speck import WhiteBoxSpeck
-
-gf2 = GF(2)
 
 parser = ArgumentParser(description="Generate a white-box Speck implementation using self-equivalence encodings")
 parser.add_argument("key", nargs="+", help="the key to use for the Speck implementation, a hexadecimal representation of the words")
@@ -39,11 +35,11 @@ white_box_speck = WhiteBoxSpeck(args.block_size, args.key_size, list(map(lambda 
 
 logging.debug(f"Generating random external encodings...")
 if args.self_equivalences == "affine":
-    self_equivalence_provider = AffineSelfEquivalenceProvider(gf2, word_size)
+    self_equivalence_provider = AffineSelfEquivalenceProvider(word_size)
     input_external_encoding = random_affine_external_encoding(word_size)
     output_external_encoding = random_affine_external_encoding(word_size)
 else:
-    self_equivalence_provider = LinearSelfEquivalenceProvider(gf2, word_size)
+    self_equivalence_provider = LinearSelfEquivalenceProvider(word_size)
     input_external_encoding = random_linear_external_encoding(word_size)
     output_external_encoding = random_linear_external_encoding(word_size)
 

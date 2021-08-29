@@ -4,6 +4,8 @@ from sage.all import GF
 from sage.all import matrix
 from sage.all import vector
 
+gf2 = GF(2)
+
 
 class WhiteBoxSpeck:
     """
@@ -74,7 +76,7 @@ class WhiteBoxSpeck:
         :param y_pos: the amount of positions the y value should be rotated right
         :return: a matrix M such that Mv corresponds to a right bit rotation of x and y if v contains the bits of x and y (little endian)
         """
-        m = matrix(GF(2), self.block_size)
+        m = matrix(gf2, self.block_size)
 
         for i in range(self.word_size):
             # This corresponds to a right rotation of x_pos bits.
@@ -99,7 +101,7 @@ class WhiteBoxSpeck:
         Returns a matrix which corresponds to y = x ^ y.
         :return: a matrix M such that Mv corresponds to y = x ^ y if v contains the bits of x and y (little endian)
         """
-        m = matrix(GF(2), self.block_size)
+        m = matrix(gf2, self.block_size)
 
         for i in range(self.word_size):
             # Output x bit at position i will be input x bit at position i.
@@ -116,7 +118,7 @@ class WhiteBoxSpeck:
         :param k: the round key
         :return: a vector w such that v ^ w corresponds to x = x ^ k if v contains the bits of x and y (little endian)
         """
-        v = vector(GF(2), self.block_size)
+        v = vector(gf2, self.block_size)
         for i in range(self.word_size):
             v[i] = (k >> i) & 1
 
@@ -142,7 +144,7 @@ class WhiteBoxSpeck:
         vectors = []
 
         matrices.append(m_first)
-        vectors.append(vector(GF(2), self.block_size))
+        vectors.append(vector(gf2, self.block_size))
 
         # No need to generate self-equivalences here as the previous layer does not contain any key material.
         matrices.append(m_mid * input_external_encoding[0])
@@ -151,7 +153,7 @@ class WhiteBoxSpeck:
         for r in range(2, self.rounds + 1):
             logging.debug(f"Generating random self-equivalence for round {r}...")
             # Generating self-equivalences and applying them to previous linear layer.
-            O, o, I, i = self_equivalence_provider.random_self_equivalence()
+            O, o, I, i = self_equivalence_provider.random_self_equivalence(gf2)
             matrices[r - 1] = O * matrices[r - 1]
             vectors[r - 1] = O * vectors[r - 1] + o
             if r < self.rounds:
