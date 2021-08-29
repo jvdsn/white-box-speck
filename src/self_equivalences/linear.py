@@ -105,13 +105,12 @@ class LinearSelfEquivalenceProvider(SelfEquivalenceProvider):
 
 if __name__ == "__main__":
     from sage.all import SR
-    from sage.all import var
 
     word_size = 64
     ring = SR
 
     self_equivalence_provider = LinearSelfEquivalenceProvider(word_size)
-    coefficients = [var(f"x{i}") for i in range(2 * word_size)]
+    coefficients = [ring(f"x{i}") for i in range(2 * word_size)]
     A, a, B, b = self_equivalence_provider.self_equivalence(ring, coefficients)
     A_vars = set(A.variables())
     B_vars = set(B.variables())

@@ -376,13 +376,12 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
 
 if __name__ == "__main__":
     from sage.all import SR
-    from sage.all import var
 
     word_size = 64
     ring = SR
 
     self_equivalence_provider = Type1AffineSelfEquivalenceProvider(word_size)
-    coefficients = [var(f"x{i}") for i in range(2 * word_size + 7)]
+    coefficients = [ring(f"x{i}") for i in range(2 * word_size + 7)]
     A, a, B, b = self_equivalence_provider.self_equivalence(ring, coefficients)
     A_vars = set(A.variables())
     a_vars = set(sum([x.variables() for x in a], ()))
@@ -391,7 +390,7 @@ if __name__ == "__main__":
     print(len(A_vars), len(a_vars), len(B_vars), len(b_vars), len(A_vars | a_vars | B_vars | b_vars))
 
     self_equivalence_provider = Type2AffineSelfEquivalenceProvider(word_size)
-    coefficients = [var(f"x{i}") for i in range(2 * word_size + 7)]
+    coefficients = [ring(f"x{i}") for i in range(2 * word_size + 7)]
     A, a, B, b = self_equivalence_provider.self_equivalence(ring, coefficients)
     A_vars = set(A.variables())
     a_vars = set(sum([x.variables() for x in a], ()))
