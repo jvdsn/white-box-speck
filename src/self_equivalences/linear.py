@@ -1,4 +1,4 @@
-import random
+from random import randint
 
 from sage.all import GF
 from sage.all import matrix
@@ -99,7 +99,7 @@ class LinearSelfEquivalenceProvider(SelfEquivalenceProvider):
         """
         assert ring == gf2
 
-        coefficients = [random.randint(0, 1) for _ in range(2 * self.word_size)]
+        coefficients = [randint(0, 1) for _ in range(2 * self.word_size)]
         return self.self_equivalence(ring, coefficients)
 
 

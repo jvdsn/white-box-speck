@@ -1,5 +1,5 @@
-import random
 from abc import abstractmethod
+from random import randint
 
 from sage.all import GF
 from sage.all import matrix
@@ -183,7 +183,7 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         """
         assert ring == gf2
 
-        coefficients = [random.randint(0, 1) for _ in range(2 * self.word_size + 7)]
+        coefficients = [randint(0, 1) for _ in range(2 * self.word_size + 7)]
         return self.self_equivalence(ring, coefficients)
 
 
@@ -366,7 +366,7 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         assert ring == gf2
 
         while True:
-            coefficients = [random.randint(0, 1) for _ in range(2 * self.word_size + 7)]
+            coefficients = [randint(0, 1) for _ in range(2 * self.word_size + 7)]
             # Make sure the first two coefficients are not zero at the same time.
             if not (coefficients[0] == 0 and coefficients[1] == 0):
                 break

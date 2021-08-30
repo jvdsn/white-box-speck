@@ -135,7 +135,6 @@ class WhiteBoxSpeck:
         rotate_x_right = self._rotate_right_matrix(self.alpha, 0)
         rotate_y_left = self._rotate_left_matrix(0, self.beta)
         xor_xy = self._xor_xy_matrix()
-
         m_first = rotate_x_right
         m_mid = rotate_x_right * xor_xy * rotate_y_left
         m_last = xor_xy * rotate_y_left
