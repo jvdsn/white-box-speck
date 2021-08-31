@@ -71,11 +71,7 @@ class LinearSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
-        :raises ValueError: if the coefficients do not meet the constraints
         """
-        if not self._check_constraints(coefficients):
-            raise ValueError("Invalid coefficients")
-
         A, L = self._self_equivalence_implicit(ring, coefficients)
         M = L * A * L.inverse()
         A = M.submatrix(row=0, col=0, nrows=2 * self.word_size, ncols=2 * self.word_size)

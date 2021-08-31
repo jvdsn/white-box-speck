@@ -129,6 +129,7 @@ class ANFSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
         if not super()._check_constraints(coefficients):
             return False
 
+        coefficients = {self_coefficient: coefficient for self_coefficient, coefficient in zip(self.coefficients, coefficients)}
         for constraint in self.constraints:
             if self.ring(constraint).subs(coefficients) != 0:
                 return False
@@ -142,9 +143,6 @@ class ANFSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
         """
         coefficients = {self_coefficient: coefficient for self_coefficient, coefficient in zip(self.coefficients, coefficients)}
-        if not self._check_constraints(coefficients):
-            raise ValueError("Invalid coefficients")
-
         A = self.A.subs(coefficients).change_ring(ring)
         A.set_immutable()
         # change_ring does not work on vectors over BPR...

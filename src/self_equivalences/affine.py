@@ -46,11 +46,7 @@ class AffineSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
-        :raises ValueError: if the coefficients do not meet the constraints
         """
-        if not self._check_constraints(coefficients):
-            raise ValueError("Invalid coefficients")
-
         A, a, L = self._self_equivalence_implicit(ring, coefficients)
         M = L * A * L.inverse()
         m = L * a

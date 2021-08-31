@@ -58,7 +58,6 @@ class CoefficientsSelfEquivalenceProvider(SelfEquivalenceProvider):
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
-        :raises ValueError: if the coefficients do not meet the constraints
         """
         pass
 
@@ -71,7 +70,6 @@ class CoefficientsSelfEquivalenceProvider(SelfEquivalenceProvider):
         assert ring == GF(2)
 
         while True:
-            try:
-                return self.self_equivalence(ring, [randint(0, 1) for _ in range(self.coefficients_size)])
-            except ValueError:
-                pass
+            coefficients = [randint(0, 1) for _ in range(self.coefficients_size)]
+            if self._check_constraints(coefficients):
+                return self.self_equivalence(ring, coefficients)
