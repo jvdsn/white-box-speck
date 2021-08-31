@@ -362,28 +362,3 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         :return: True if the coefficients meet the constraints, False otherwise
         """
         return super()._check_constraints(coefficients) and (coefficients[0] == 1 or coefficients[1] == 1)
-
-
-if __name__ == "__main__":
-    from sage.all import SR
-
-    word_size = 64
-    ring = SR
-
-    sep = Type1AffineSelfEquivalenceProvider(word_size)
-    coefficients = [ring(f"x{i}") for i in range(sep.coefficients_size)]
-    A, a, B, b = sep.self_equivalence(ring, coefficients)
-    A_vars = set(A.variables())
-    a_vars = set(sum([x.variables() for x in a], ()))
-    B_vars = set(B.variables())
-    b_vars = set(sum([x.variables() for x in b], ()))
-    print(len(A_vars), len(a_vars), len(B_vars), len(b_vars), len(A_vars | a_vars | B_vars | b_vars))
-
-    sep = Type2AffineSelfEquivalenceProvider(word_size)
-    coefficients = [ring(f"x{i}") for i in range(sep.coefficients_size)]
-    A, a, B, b = sep.self_equivalence(ring, coefficients)
-    A_vars = set(A.variables())
-    a_vars = set(sum([x.variables() for x in a], ()))
-    B_vars = set(B.variables())
-    b_vars = set(sum([x.variables() for x in b], ()))
-    print(len(A_vars), len(a_vars), len(B_vars), len(b_vars), len(A_vars | a_vars | B_vars | b_vars))

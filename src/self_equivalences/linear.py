@@ -87,17 +87,3 @@ class LinearSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
         b = vector(ring, 2 * self.word_size)
         b.set_immutable()
         return A, a, B, b
-
-
-if __name__ == "__main__":
-    from sage.all import SR
-
-    word_size = 64
-    ring = SR
-
-    sep = LinearSelfEquivalenceProvider(word_size)
-    coefficients = [ring(f"x{i}") for i in range(sep.coefficients_size)]
-    A, a, B, b = sep.self_equivalence(ring, coefficients)
-    A_vars = set(A.variables())
-    B_vars = set(B.variables())
-    print(len(A_vars), len(B_vars), len(A_vars | B_vars))
