@@ -1,15 +1,10 @@
-from random import randint
-
-from sage.all import GF
 from sage.all import matrix
 from sage.all import vector
 
-from self_equivalences import SelfEquivalenceProvider
-
-gf2 = GF(2)
+from self_equivalences import CoefficientsSelfEquivalenceProvider
 
 
-class LinearSelfEquivalenceProvider(SelfEquivalenceProvider):
+class LinearSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
     """
     Generates linear self-equivalences.
     """
@@ -19,17 +14,16 @@ class LinearSelfEquivalenceProvider(SelfEquivalenceProvider):
         Initializes an instance of LinearSelfEquivalenceProvider with the provided parameters.
         :param word_size: the word size
         """
-        super().__init__(word_size)
+        super().__init__(word_size, 2 * word_size)
 
     def _self_equivalence_implicit(self, ring, coefficients):
         """
-        Generates a linear self-equivalence of the implicit function f_H with coefficients.
+        Generates a linear self-equivalence of the implicit function f_H using coefficients.
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple containing the matrix A of the self-equivalence, and the matrix L
         """
         ws = self.word_size
-        assert len(coefficients) == 2 * ws
 
         zero = matrix(ring, ws)
         one = matrix.identity(ring, ws)
@@ -73,11 +67,15 @@ class LinearSelfEquivalenceProvider(SelfEquivalenceProvider):
 
     def self_equivalence(self, ring, coefficients):
         """
-        Generates a linear self-equivalence of the function S(x, y) = (x + y, y) with coefficients.
+        Generates a linear self-equivalence of the function S(x, y) = (x + y, y) using coefficients.
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
+        :raises ValueError: if the coefficients do not meet the constraints
         """
+        if not self._check_constraints(coefficients):
+            raise ValueError("Invalid coefficients")
+
         A, L = self._self_equivalence_implicit(ring, coefficients)
         M = L * A * L.inverse()
         A = M.submatrix(row=0, col=0, nrows=2 * self.word_size, ncols=2 * self.word_size)
@@ -90,18 +88,6 @@ class LinearSelfEquivalenceProvider(SelfEquivalenceProvider):
         b.set_immutable()
         return A, a, B, b
 
-    def random_self_equivalence(self, ring):
-        """
-        Generates a random linear self-equivalence of the function S(x, y) = (x + y, y).
-        The returned vector a and vector b will necessarily be zero vectors.
-        :param ring: the ring
-        :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
-        """
-        assert ring == gf2
-
-        coefficients = [randint(0, 1) for _ in range(2 * self.word_size)]
-        return self.self_equivalence(ring, coefficients)
-
 
 if __name__ == "__main__":
     from sage.all import SR
@@ -109,9 +95,9 @@ if __name__ == "__main__":
     word_size = 64
     ring = SR
 
-    self_equivalence_provider = LinearSelfEquivalenceProvider(word_size)
-    coefficients = [ring(f"x{i}") for i in range(2 * word_size)]
-    A, a, B, b = self_equivalence_provider.self_equivalence(ring, coefficients)
+    sep = LinearSelfEquivalenceProvider(word_size)
+    coefficients = [ring(f"x{i}") for i in range(sep.coefficients_size)]
+    A, a, B, b = sep.self_equivalence(ring, coefficients)
     A_vars = set(A.variables())
     B_vars = set(B.variables())
     print(len(A_vars), len(B_vars), len(A_vars | B_vars))

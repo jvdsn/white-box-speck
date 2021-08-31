@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from itertools import combinations
+from os import path
 from random import randint
 
 from sage.all import GF
@@ -10,12 +11,12 @@ from sage.all import prod
 from sage.all import vector
 from sage.rings.polynomial.pbori.pbori import BooleanPolynomialRing
 
-from self_equivalences import SelfEquivalenceProvider
+from self_equivalences import CoefficientsSelfEquivalenceProvider
 
 gf2 = GF(2)
 
 
-class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
+class ANFSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
     """
     Generates self-equivalences using the Algebraic Normal Form.
     """
@@ -30,19 +31,21 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
         """
         assert word_size in [16, 24, 32, 48, 64]
 
-        super().__init__(word_size)
-
-        expressions, self.constraints = load(f"sobj/{sobj_prefix}{word_size}.sobj")
+        sobj_dir = path.join(path.dirname(path.dirname(path.dirname(__file__))), "sobj")
+        expressions, self.constraints = load(path.join(sobj_dir, f"{sobj_prefix}{word_size}.sobj"))
 
         x_names = [f"x{i}" for i in range(4 * word_size)]
-        self.coefficient_names = []
+        coefficient_names = []
         for _, expression in expressions:
             for v in SR(expression).variables():
-                if str(v) not in self.coefficient_names:
-                    self.coefficient_names.append(str(v))
+                if str(v) not in coefficient_names:
+                    coefficient_names.append(str(v))
 
-        self.bpr = BooleanPolynomialRing(names=x_names + self.coefficient_names)
-        xs = [self.bpr(x_name) for x_name in x_names]
+        super().__init__(word_size, len(coefficient_names))
+
+        self.ring = BooleanPolynomialRing(names=x_names + coefficient_names)
+        xs = [self.ring(x_name) for x_name in x_names]
+        self.coefficients = [self.ring(coefficient_name) for coefficient_name in coefficient_names]
 
         zero = matrix(gf2, word_size)
         one = matrix.identity(gf2, word_size)
@@ -59,22 +62,22 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
         values = {**{}, **dict(expressions)}
         c = []
         for i in range(4 * word_size):
-            f = self.bpr.zero()
+            f = self.ring.zero()
             for d in reversed(range(1, degree + 1)):
                 for combination in combinations(range(4 * word_size), d):
                     coefficient = f"b{i}_" + "_".join(f"{j}" for j in combination)
                     if coefficient in values:
                         coefficient = values[coefficient]
                     monomial = prod([xs[j] for j in combination])
-                    f += self.bpr(coefficient) * monomial
+                    f += self.ring(coefficient) * monomial
 
                 coefficient = f"b{i}"
                 if coefficient in values:
                     coefficient = values[coefficient]
-                f += self.bpr(coefficient)
+                f += self.ring(coefficient)
                 c.append(f)
 
-        c = vector(self.bpr, c)
+        c = vector(self.ring, c)
         l_c_l_inv = c.subs({x: am_anf_inv[i] for i, x in enumerate(xs)})
         l_c_l_inv = am_anf.subs({x: l_c_l_inv[i] for i, x in enumerate(xs)})
 
@@ -93,23 +96,23 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
     def _matrix_to_anf(self, m, xs):
         anf = []
         for row in m.rows():
-            f = self.bpr.zero()
+            f = self.ring.zero()
             for a, x in zip(row, xs):
                 f += a * x
 
             anf.append(f)
 
-        return vector(self.bpr, anf)
+        return vector(self.ring, anf)
 
     def _anf_to_matrix(self, anf, xs):
-        gens = self.bpr.gens()
+        gens = self.ring.gens()
         x_indexes = set(gens.index(x) for x in xs)
         rows = []
         for f in anf:
             coefficients = {}
-            for monomial in f:
-                x = self.bpr.one()
-                coefficient = self.bpr.one()
+            for monomial in f.monomials():
+                x = self.ring.one()
+                coefficient = self.ring.one()
                 for i in monomial.iterindex():
                     if i in x_indexes:
                         x *= gens[i]
@@ -120,21 +123,28 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
 
             rows.append([coefficients.get(x, 0) for x in xs])
 
-        return matrix(self.bpr, rows)
+        return matrix(self.ring, rows)
 
     def _check_constraints(self, coefficients):
+        if not super()._check_constraints(coefficients):
+            return False
+
         for constraint in self.constraints:
-            if self.bpr(constraint).subs(coefficients) != 0:
+            if self.ring(constraint).subs(coefficients) != 0:
                 return False
         return True
 
     def self_equivalence(self, ring, coefficients):
         """
-        Generates an affine or a linear self-equivalence of the function S(x, y) = (x + y, y) with coefficients.
+        Generates an affine or a linear self-equivalence of the function S(x, y) = (x + y, y) using coefficients.
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
         """
+        coefficients = {self_coefficient: coefficient for self_coefficient, coefficient in zip(self.coefficients, coefficients)}
+        if not self._check_constraints(coefficients):
+            raise ValueError("Invalid coefficients")
+
         A = self.A.subs(coefficients).change_ring(ring)
         A.set_immutable()
         # change_ring does not work on vectors over BPR...
@@ -146,21 +156,6 @@ class ANFSelfEquivalenceProvider(SelfEquivalenceProvider):
         b = B * vector(ring, [ring(f.subs(coefficients)) for f in self.b])
         b.set_immutable()
         return A, a, B, b
-
-    def random_self_equivalence(self, ring):
-        """
-        Generates a random affine or linear self-equivalence of the function S(x, y) = (x + y, y).
-        :param ring: the ring
-        :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
-        """
-        assert ring == gf2
-
-        while True:
-            coefficients = {self.bpr(coefficient_name): randint(0, 1) for coefficient_name in self.coefficient_names}
-            if self._check_constraints(coefficients):
-                break
-
-        return self.self_equivalence(ring, coefficients)
 
 
 class AffineSelfEquivalenceProvider(ANFSelfEquivalenceProvider):

@@ -1,47 +1,56 @@
 from abc import abstractmethod
-from random import randint
 
-from sage.all import GF
 from sage.all import matrix
 from sage.all import vector
 
-from self_equivalences import SelfEquivalenceProvider
-
-gf2 = GF(2)
+from self_equivalences import CoefficientsSelfEquivalenceProvider
 
 
-class AffineSelfEquivalenceProvider(SelfEquivalenceProvider):
+class AffineSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
     """
     Generates affine self-equivalences.
     """
 
     @abstractmethod
-    def __init__(self, word_size):
+    def __init__(self, word_size, coefficients_size):
         """
         Initializes an instance of AffineSelfEquivalenceProvider with the provided parameters.
         :param word_size: the word size
+        :param coefficients_size: the number of coefficients required
         """
         assert word_size >= 3
 
-        super().__init__(word_size)
+        super().__init__(word_size, coefficients_size)
 
     @abstractmethod
     def _self_equivalence_implicit(self, ring, coefficients):
         """
-        Generates an affine self-equivalence of the implicit function f_H with coefficients.
+        Generates an affine self-equivalence of the implicit function f_H using coefficients.
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple containing the matrix A and the vector a of the self-equivalence
         """
         pass
 
+    def _check_constraints(self, coefficients):
+        """
+        Checks if the coefficients meet the constraints.
+        :param coefficients: the coefficients
+        :return: True if the coefficients meet the constraints, False otherwise
+        """
+        return len(coefficients) == self.coefficients_size
+
     def self_equivalence(self, ring, coefficients):
         """
-        Generates an affine self-equivalence of the function S(x, y) = (x + y, y) with coefficients.
+        Generates an affine self-equivalence of the function S(x, y) = (x + y, y) using coefficients.
         :param ring: the ring
         :param coefficients: the coefficients to use
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
+        :raises ValueError: if the coefficients do not meet the constraints
         """
+        if not self._check_constraints(coefficients):
+            raise ValueError("Invalid coefficients")
+
         A, a, L = self._self_equivalence_implicit(ring, coefficients)
         M = L * A * L.inverse()
         m = L * a
@@ -66,16 +75,15 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         Initializes an instance of Type1AffineSelfEquivalenceProvider with the provided parameters.
         :param word_size: the word size
         """
-        super().__init__(word_size)
+        super().__init__(word_size, 2 * word_size + 7)
 
     def _self_equivalence_implicit(self, ring, coefficients):
         """
-        Generates a type 1 affine self-equivalence of the implicit function f_H with coefficients.
+        Generates a type 1 affine self-equivalence of the implicit function f_H using coefficients.
         :param coefficients: the coefficients to use
         :return: a tuple containing the matrix A and the vector a of the self-equivalence, and the matrix L
         """
         ws = self.word_size
-        assert len(coefficients) == 2 * ws + 7
 
         zero = matrix(ring, ws)
         one = matrix.identity(ring, ws)
@@ -175,17 +183,6 @@ class Type1AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         L.set_immutable()
         return A, a, L
 
-    def random_self_equivalence(self, ring):
-        """
-        Generates a random affine self-equivalence of the function S(x, y) = (x + y, y).
-        :param ring: the ring
-        :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
-        """
-        assert ring == gf2
-
-        coefficients = [randint(0, 1) for _ in range(2 * self.word_size + 7)]
-        return self.self_equivalence(ring, coefficients)
-
 
 class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
     """
@@ -197,17 +194,16 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         Initializes an instance of Type2AffineSelfEquivalenceProvider with the provided parameters.
         :param word_size: the word size
         """
-        super().__init__(word_size)
+        super().__init__(word_size, 2 * word_size + 7)
 
     def _self_equivalence_implicit(self, ring, coefficients):
         """
-        Generates an affine self-equivalence of the implicit function f_H with coefficients.
+        Generates an affine self-equivalence of the implicit function f_H using coefficients.
         The coefficients coefficients[0] and coefficients[1] should not be equal to 0 at the same time.
         :param coefficients: the coefficients to use
         :return: a tuple containing the matrix A and the vector a of the self-equivalence, and the matrix L
         """
         ws = self.word_size
-        assert len(coefficients) == 2 * ws + 7
 
         zero = matrix(ring, ws)
         one = matrix.identity(ring, ws)
@@ -358,20 +354,14 @@ class Type2AffineSelfEquivalenceProvider(AffineSelfEquivalenceProvider):
         L.set_immutable()
         return A, a, L
 
-    def random_self_equivalence(self, ring):
+    def _check_constraints(self, coefficients):
         """
-        Generates a random type 2 affine self-equivalence of the function S(x, y) = (x + y, y).
-        :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
+        Checks if the coefficients meet the constraints.
+        For this AffineSelfEquivalenceProvider, the first two coefficients should not be zero at the same time.
+        :param coefficients: the coefficients
+        :return: True if the coefficients meet the constraints, False otherwise
         """
-        assert ring == gf2
-
-        while True:
-            coefficients = [randint(0, 1) for _ in range(2 * self.word_size + 7)]
-            # Make sure the first two coefficients are not zero at the same time.
-            if not (coefficients[0] == 0 and coefficients[1] == 0):
-                break
-
-        return self.self_equivalence(ring, coefficients)
+        return super()._check_constraints(coefficients) and (coefficients[0] == 1 or coefficients[1] == 1)
 
 
 if __name__ == "__main__":
@@ -380,18 +370,18 @@ if __name__ == "__main__":
     word_size = 64
     ring = SR
 
-    self_equivalence_provider = Type1AffineSelfEquivalenceProvider(word_size)
-    coefficients = [ring(f"x{i}") for i in range(2 * word_size + 7)]
-    A, a, B, b = self_equivalence_provider.self_equivalence(ring, coefficients)
+    sep = Type1AffineSelfEquivalenceProvider(word_size)
+    coefficients = [ring(f"x{i}") for i in range(sep.coefficients_size)]
+    A, a, B, b = sep.self_equivalence(ring, coefficients)
     A_vars = set(A.variables())
     a_vars = set(sum([x.variables() for x in a], ()))
     B_vars = set(B.variables())
     b_vars = set(sum([x.variables() for x in b], ()))
     print(len(A_vars), len(a_vars), len(B_vars), len(b_vars), len(A_vars | a_vars | B_vars | b_vars))
 
-    self_equivalence_provider = Type2AffineSelfEquivalenceProvider(word_size)
-    coefficients = [ring(f"x{i}") for i in range(2 * word_size + 7)]
-    A, a, B, b = self_equivalence_provider.self_equivalence(ring, coefficients)
+    sep = Type2AffineSelfEquivalenceProvider(word_size)
+    coefficients = [ring(f"x{i}") for i in range(sep.coefficients_size)]
+    A, a, B, b = sep.self_equivalence(ring, coefficients)
     A_vars = set(A.variables())
     a_vars = set(sum([x.variables() for x in a], ()))
     B_vars = set(B.variables())
