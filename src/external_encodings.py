@@ -80,7 +80,7 @@ class InputExternalEncodingCodeGenerator(BitPackedCodeGenerator):
 
     def generate_code_inverse_input_external_encoding(self, matrix0, vector0, external_encoding):
         matrix, vector = external_encoding
-        return self.generate_code([matrix0, matrix ** -1, matrix0 ** -1], [vector0, vector, vector0])
+        return self.generate_code([matrix0, matrix.inverse(), matrix0.inverse()], [vector0, vector, vector0])
 
 
 class OutputExternalEncodingCodeGenerator(BitPackedCodeGenerator):
@@ -112,4 +112,4 @@ class OutputExternalEncodingCodeGenerator(BitPackedCodeGenerator):
 
     def generate_code_inverse_output_external_encoding(self, external_encoding):
         matrix, vector = external_encoding
-        return self.generate_code([matrix ** -1], [vector])
+        return self.generate_code([matrix.inverse()], [vector])
