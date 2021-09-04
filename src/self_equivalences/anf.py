@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from itertools import combinations
 from os import path
-from random import randint
 
 from sage.all import GF
 from sage.all import SR
@@ -78,20 +77,39 @@ class ANFSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
                 c.append(f)
 
         c = vector(self.ring, c)
-        l_c_l_inv = c.subs({x: am_anf_inv[i] for i, x in enumerate(xs)})
-        l_c_l_inv = am_anf.subs({x: l_c_l_inv[i] for i, x in enumerate(xs)})
+        l_c_l_inv = self._subs_vector(self.ring, c, {x: am_anf_inv[i] for i, x in enumerate(xs)})
+        l_c_l_inv = self._subs_vector(self.ring, am_anf, {x: l_c_l_inv[i] for i, x in enumerate(xs)})
 
-        a = l_c_l_inv[:2 * word_size].subs({x: 0 for x in xs[2 * word_size:]})
-        b_inv = l_c_l_inv[2 * word_size:].subs({x: (0 if i < 2 * word_size else xs[i - 2 * word_size]) for i, x in enumerate(xs)})
+        a = self._subs_vector(self.ring, l_c_l_inv[:2 * word_size], {x: 0 for x in xs[2 * word_size:]})
+        b_inv = self._subs_vector(self.ring, l_c_l_inv[2 * word_size:], {x: (0 if i < 2 * word_size else xs[i - 2 * word_size]) for i, x in enumerate(xs)})
 
         self.A = self._anf_to_matrix(a, xs[:2 * word_size])
         self.A.set_immutable()
-        self.a = a.subs({x: 0 for x in xs[:2 * word_size]})
+        self.a = self._subs_vector(self.ring, a, {x: 0 for x in xs[:2 * word_size]})
         self.a.set_immutable()
         self.B = self._anf_to_matrix(b_inv, xs[:2 * word_size])
         self.B.set_immutable()
-        self.b = b_inv.subs({x: 0 for x in xs[:2 * word_size]})
+        self.b = self._subs_vector(self.ring, b_inv, {x: 0 for x in xs[:2 * word_size]})
         self.b.set_immutable()
+
+    def _subs_matrix(self, ring, m, xs):
+        res = matrix(ring, m.nrows(), m.ncols())
+        for row in range(m.nrows()):
+            for col in range(m.ncols()):
+                if m[row, col] == 0 or m[row, col] == 1:
+                    res[row, col] = m[row, col]
+                else:
+                    res[row, col] = m[row, col].subs(xs)
+        return res
+
+    def _subs_vector(self, ring, v, xs):
+        res = vector(ring, len(v))
+        for i in range(len(v)):
+            if v[i] == 0 or v[i] == 1:
+                res[i] = v[i]
+            else:
+                res[i] = v[i].subs(xs)
+        return res
 
     def _matrix_to_anf(self, m, xs):
         anf = []
@@ -143,15 +161,13 @@ class ANFSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
         :return: a tuple of matrix A, vector a, matrix B, and vector b, such that S = (b o B) o S o (a o A)
         """
         coefficients = {self_coefficient: coefficient for self_coefficient, coefficient in zip(self.coefficients, coefficients)}
-        A = self.A.subs(coefficients).change_ring(ring)
+        A = self._subs_matrix(ring, self.A, coefficients)
         A.set_immutable()
-        # change_ring does not work on vectors over BPR...
-        a = vector(ring, [ring(f.subs(coefficients)) for f in self.a])
+        a = self._subs_vector(ring, self.a, coefficients)
         a.set_immutable()
-        B = self.B.subs(coefficients).change_ring(ring).inverse()
+        B = self._subs_matrix(ring, self.B, coefficients).inverse()
         B.set_immutable()
-        # change_ring does not work on vectors over BPR...
-        b = B * vector(ring, [ring(f.subs(coefficients)) for f in self.b])
+        b = B * self._subs_vector(ring, self.b, coefficients)
         b.set_immutable()
         return A, a, B, b
 
