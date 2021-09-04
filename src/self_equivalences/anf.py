@@ -58,6 +58,7 @@ class ANFSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
         am_anf = self._matrix_to_anf(am, xs)
         am_anf_inv = self._matrix_to_anf(am.inverse(), xs)
 
+        # The empty dict here can be used to fill in coefficients, but we wait until later.
         values = {**{}, **dict(expressions)}
         c = []
         for i in range(4 * word_size):
@@ -131,6 +132,7 @@ class ANFSelfEquivalenceProvider(CoefficientsSelfEquivalenceProvider):
             for monomial in f.monomials():
                 x = self.ring.one()
                 coefficient = self.ring.one()
+                # iterindex is much faster than variables.
                 for i in monomial.iterindex():
                     if i in x_indexes:
                         x *= gens[i]
