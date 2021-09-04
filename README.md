@@ -5,7 +5,7 @@ This repository contains the code for my master's thesis: "A White-Box Speck Imp
 * `src/white_box_speck.py`: this file contains the `WhiteBoxSpeck` class, responsible for generating the encoded matrices and vectors when a Speck key is provided.
 * `src/external_encodings.py`: this file contains code generate random linear and affine external encodings, and the code required to output these encodings.
 * `src/main.py`: the main Python file, containing miscellaneous code related to argument handling, logging, and directing the other components.
-* `src/attacks.py`: this file is special. It contains a proof-of-concept implementation of the attack to recover linear self-equivalence encodings and external encodings from a white-box Speck implementation.
+* `src/attacks`: this directory is special. It contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation.
 
 # Requirements
 This project uses Python 3 and the [SageMath](https://www.sagemath.org/) package.
@@ -62,7 +62,8 @@ This will properly chain the inverse input and output external encodings with th
 In general, the bit-packed code generation strategy is the most efficient overall strategy. However, this depends on block size and your performance goals. For a comprehensive overview, refer to Implementation chapter of my master's thesis.
 
 ## Some examples
-Generating a white-box `Speck32/64` implementation using only linear self-equivalences (just for demonstration purposes, linear self-equivalences are insecure):
+
+Generating a white-box `Speck32/64` implementation using only linear self-equivalences (just for demonstration purposes, linear self-equivalences are very insecure):
 ```
 sage -python src/main.py --block-size 32 --key-size 64 --self-equivalences linear 1918 1110 0908 0100
 ```
@@ -73,13 +74,25 @@ sage -python src/main.py --block-size 64 --key-size 128 --debug 1b1a1918 1312111
 ```
 
 Generating a white-box `Speck128/256` implementation in the `out` directory:
+
 ```
 sage -python src/main.py --block-size 128 --key-size 256 --output-dir out 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 ```
 
 ## Attacks
-As mentioned, `attacks.py` contains a proof-of-concept implementation of the attack to recover linear self-equivalence encodings and external encodings from a white-box Speck implementation. This file can also be executed:
+
+As mentioned, `src/attacks` contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation. Files in this directory can also be executed:
+
 ```
-sage -python src/attacks.py
+export PYTHONPATH=$(pwd)/src
+sage -python src/attacks/linear.py
 ```
+
+or
+
+```
+export PYTHONPATH=$(pwd)/src
+sage -python src/attacks/anf.py
+```
+
 This will output the results of the attack (i.e. whether the master key and external encodings could be recovered), for each Speck parameter set.
