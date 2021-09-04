@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Set this to --debug to enable debug output
+DEBUG=""
 BLOCK_SIZES=(32 48 48 64 64 96 96 128 128 128)
 KEY_SIZES=(64 72 96 96 128 96 144 128 192 256)
 SELF_EQUIVALENCES=("affine" "linear")
@@ -53,7 +55,7 @@ STRATEGIES=(
 for ((i = 0; i < ${#BLOCK_SIZES[@]}; i++)); do
     for self_equivalences in "${SELF_EQUIVALENCES[@]}"; do
         echo "Testing Speck${BLOCK_SIZES[i]}/${KEY_SIZES[i]} with $self_equivalences self equivalences and key '${KEYS[i]}'"
-        sage -python src/main.py --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --self-equivalences $self_equivalences --debug ${KEYS[i]}
+        sage -python src/main.py --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --self-equivalences $self_equivalences $DEBUG ${KEYS[i]}
 
         gcc -o inverse_input_external_encoding inverse_input_external_encoding.c
         gcc -o inverse_output_external_encoding inverse_output_external_encoding.c
