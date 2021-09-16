@@ -1,4 +1,4 @@
-# Introduction 
+## Introduction 
 This repository contains the code for my master's thesis: "A White-Box Speck Implementation using Self-Equivalence Encodings". The code can roughly be divided in six parts:
 * `src/code_generator/`: this directory contains all code related to output code generation, including the different code generation strategies.
 * `src/self_equivalences/`: this directory contains all code related to the generation of (random) linear and affine self-equivalences, as well as combining these self-equivalences.
@@ -7,10 +7,10 @@ This repository contains the code for my master's thesis: "A White-Box Speck Imp
 * `src/main.py`: the main Python file, containing miscellaneous code related to argument handling, logging, and directing the other components.
 * `src/attacks`: this directory is special. It contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation.
 
-# Requirements
+## Requirements
 This project uses Python 3 and the [SageMath](https://www.sagemath.org/) package.
 
-# Usage
+## Usage
 The `test.sh` file included in this repository is a simple Bash script which tests the program using the Speck test vectors. Reading through this file is a good first introduction to the project.
 
 To generate white-box Speck encryption implementations manually, you will need to execute the `main.py` file:
