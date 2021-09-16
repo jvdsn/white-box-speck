@@ -78,7 +78,7 @@ class SIMDCodeGenerator(BitPackedCodeGenerator):
                     yparts.append(self._to_int_big_endian(matrix[i + j][matrix.nrows() // 2:]))
                 xparts = ", ".join(map(lambda xpart: f"WORD_CONSTANT_TYPE({xpart})", xparts))
                 yparts = ", ".join(map(lambda ypart: f"WORD_CONSTANT_TYPE({ypart})", yparts))
-                s += f"{{{{{xparts}}}, {{{yparts}}}}}"
+                s += f"{{{{{{{xparts}}}}}, {{{{{yparts}}}}}}}"
                 if i + simd_packed_count < matrix.nrows():
                     s += ", "
             s += "}"
