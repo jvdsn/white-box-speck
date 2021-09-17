@@ -81,18 +81,4 @@ sage -python src/main.py --block-size 128 --key-size 256 --output-dir out 1f1e1d
 
 ## Attacks
 
-As mentioned, `src/attacks` contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation. Files in this directory can also be executed:
-
-```
-export PYTHONPATH=$(pwd)/src
-sage -python src/attacks/linear.py
-```
-
-or
-
-```
-export PYTHONPATH=$(pwd)/src
-sage -python src/attacks/anf.py
-```
-
-This will output the results of the attack (i.e. whether the master key and external encodings could be recovered), for each Speck parameter set.
+As mentioned, `src/attacks` contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation. The attacks can be tested using the `test_attacks.sh` script. This script will output the results of the attack (i.e. whether the master key and external encodings could be recovered), for each Speck parameter set.
