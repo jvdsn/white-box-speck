@@ -10,7 +10,7 @@ from sage.all import prod
 from sage.all import vector
 from sage.rings.polynomial.pbori.pbori import BooleanPolynomialRing
 
-from self_equivalences import CoefficientsSelfEquivalenceProvider
+from . import CoefficientsSelfEquivalenceProvider
 
 gf2 = GF(2)
 

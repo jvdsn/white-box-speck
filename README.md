@@ -1,11 +1,12 @@
 ## Introduction 
-This repository contains the code for my master's thesis: "A White-Box Speck Implementation using Self-Equivalence Encodings". The code can roughly be divided in six parts:
-* `src/code_generator/`: this directory contains all code related to output code generation, including the different code generation strategies.
-* `src/self_equivalences/`: this directory contains all code related to the generation of (random) linear and affine self-equivalences, as well as combining these self-equivalences.
-* `src/white_box_speck.py`: this file contains the `WhiteBoxSpeck` class, responsible for generating the encoded matrices and vectors when a Speck key is provided.
-* `src/external_encodings.py`: this file contains code generate random linear and affine external encodings, and the code required to output these encodings.
-* `src/main.py`: the main Python file, containing miscellaneous code related to argument handling, logging, and directing the other components.
-* `src/attacks`: this directory is special. It contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation.
+This repository contains the code for my master's thesis: "A White-Box Speck Implementation using Self-Equivalence Encodings". The main code can roughly be divided in five parts:
+* `white_box_speck/code_generator/`: this directory contains all code related to output code generation, including the different code generation strategies.
+* `white_box_speck/self_equivalences/`: this directory contains all code related to the generation of (random) linear and affine self-equivalences, as well as combining these self-equivalences.
+* `white_box_speck/__init__.py`: this file contains the `WhiteBoxSpeck` class, responsible for generating the encoded matrices and vectors when a Speck key is provided.
+* `white_box_speck/__main__.py`: the main Python file, containing miscellaneous code related to argument handling, logging, and directing the other components.
+* `white_box_speck/external_encodings.py`: this file contains code generate random linear and affine external encodings, and the code required to output these encodings.
+
+Additionally, this repository also contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation. These attacks can be found in the `attacks` directory.
 
 ## Requirements
 This project uses Python 3 and the [SageMath](https://www.sagemath.org/) package.
@@ -15,11 +16,11 @@ The `test.sh` file included in this repository is a simple Bash script which tes
 
 To generate white-box Speck encryption implementations manually, you will need to execute the `main.py` file:
 ```
-sage -python src/main.py -h
+sage -python -m white_box_speck -h
 ```
 This will output the help dialogue with possible arguments, copied here for your convenience:
 ```
-usage: main.py [-h] [--block-size [{32,48,64,96,128}]] [--key-size [{64,72,96,128,144,192,256}]] [--output-dir [OUTPUT_DIR]] [--self-equivalences [{affine,linear}]] [--debug] key [key ...]
+usage: sage -python -m white_box_speck [-h] [--block-size [{32,48,64,96,128}]] [--key-size [{64,72,96,128,144,192,256}]] [--output-dir [OUTPUT_DIR]] [--self-equivalences [{affine,linear}]] [--debug] key [key ...]
 
 Generate a white-box Speck implementation using self-equivalence encodings
 
@@ -65,20 +66,29 @@ In general, the bit-packed code generation strategy is the most efficient overal
 
 Generating a white-box `Speck32/64` implementation using only linear self-equivalences (just for demonstration purposes, linear self-equivalences are very insecure):
 ```
-sage -python src/main.py --block-size 32 --key-size 64 --self-equivalences linear 1918 1110 0908 0100
+sage -python -m white_box_speck --block-size 32 --key-size 64 --self-equivalences linear 1918 1110 0908 0100
 ```
 
 Generating a white-box `Speck64/128` implementation with debug logging enabled:
 ```
-sage -python src/main.py --block-size 64 --key-size 128 --debug 1b1a1918 13121110 0b0a0908 03020100
+sage -python -m white_box_speck --block-size 64 --key-size 128 --debug 1b1a1918 13121110 0b0a0908 03020100
 ```
 
 Generating a white-box `Speck128/256` implementation in the `out` directory:
 
 ```
-sage -python src/main.py --block-size 128 --key-size 256 --output-dir out 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+sage -python -m white_box_speck --block-size 128 --key-size 256 --output-dir out 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 ```
 
 ## Attacks
 
-As mentioned, `src/attacks` contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation. The attacks can be tested using the `test_attacks.sh` script. This script will output the results of the attack (i.e. whether the master key and external encodings could be recovered), for each Speck parameter set.
+As mentioned, the `attacks` directory contains proof-of-concept implementations of attacks to recover self-equivalence encodings and external encodings from a white-box Speck implementation. The attacks can be tested by running the Python scripts:
+```
+sage -python attacks/linear.py
+```
+or
+```
+sage -python attacks/anf.py
+```
+
+This will output the results of the attack (i.e. whether the master key and external encodings could be recovered), for each Speck parameter set.

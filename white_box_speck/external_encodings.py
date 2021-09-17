@@ -3,7 +3,7 @@ from sage.all import random_matrix
 from sage.all import random_vector
 from sage.all import vector
 
-from code_generator.bit_packed import BitPackedCodeGenerator
+from .code_generator.bit_packed import BitPackedCodeGenerator
 
 ring = GF(2)
 

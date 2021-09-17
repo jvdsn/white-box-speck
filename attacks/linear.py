@@ -1,12 +1,16 @@
 import logging
+import os
+import sys
 from random import randint
 
 from sage.all import GF
 from sage.all import vector
 
+sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.realpath(os.path.abspath(__file__)))))
+
 from attacks import inverse_key_schedule
-from external_encodings import random_linear_external_encoding
-from self_equivalences.linear import LinearSelfEquivalenceProvider
+from white_box_speck.external_encodings import random_linear_external_encoding
+from white_box_speck.self_equivalences.linear import LinearSelfEquivalenceProvider
 from white_box_speck import WhiteBoxSpeck
 
 gf2 = GF(2)

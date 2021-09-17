@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 from itertools import product
 from random import randint
 
@@ -6,10 +8,12 @@ from sage.all import GF
 from sage.all import vector
 from sage.rings.polynomial.pbori.pbori import BooleanPolynomialRing
 
+sys.path.insert(1, os.path.dirname(os.path.realpath(os.path.abspath(__file__))))
+
 from attacks import inverse_key_schedule
-from external_encodings import random_linear_external_encoding
-from self_equivalences.anf import AffineSelfEquivalenceProvider
-from self_equivalences.anf import LinearSelfEquivalenceProvider
+from white_box_speck.external_encodings import random_linear_external_encoding
+from white_box_speck.self_equivalences.anf import AffineSelfEquivalenceProvider
+from white_box_speck.self_equivalences.anf import LinearSelfEquivalenceProvider
 from white_box_speck import WhiteBoxSpeck
 
 gf2 = GF(2)

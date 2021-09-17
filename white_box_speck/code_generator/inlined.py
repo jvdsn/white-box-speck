@@ -1,4 +1,4 @@
-from code_generator import CodeGenerator
+from . import CodeGenerator
 
 
 class InlinedCodeGenerator(CodeGenerator):

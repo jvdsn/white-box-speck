@@ -1,7 +1,7 @@
 from sage.all import matrix
 from sage.all import vector
 
-from self_equivalences import SelfEquivalenceProvider
+from . import SelfEquivalenceProvider
 
 
 class CombinedSelfEquivalenceProvider(SelfEquivalenceProvider):

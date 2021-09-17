@@ -2,21 +2,21 @@ import logging
 from argparse import ArgumentParser
 from pathlib import Path
 
-from code_generator.bit_packed import BitPackedCodeGenerator
-from code_generator.default import DefaultCodeGenerator
-from code_generator.inlined import InlinedCodeGenerator
-from code_generator.inlined_bit_packed import InlinedBitPackedCodeGenerator
-from code_generator.simd import SIMDCodeGenerator
-from code_generator.sparse_matrix import SparseMatrixCodeGenerator
-from external_encodings import InputExternalEncodingCodeGenerator
-from external_encodings import OutputExternalEncodingCodeGenerator
-from external_encodings import random_affine_external_encoding
-from external_encodings import random_linear_external_encoding
-from self_equivalences.anf import AffineSelfEquivalenceProvider
-from self_equivalences.anf import LinearSelfEquivalenceProvider
-from white_box_speck import WhiteBoxSpeck
+from . import WhiteBoxSpeck
+from .code_generator.bit_packed import BitPackedCodeGenerator
+from .code_generator.default import DefaultCodeGenerator
+from .code_generator.inlined import InlinedCodeGenerator
+from .code_generator.inlined_bit_packed import InlinedBitPackedCodeGenerator
+from .code_generator.simd import SIMDCodeGenerator
+from .code_generator.sparse_matrix import SparseMatrixCodeGenerator
+from .external_encodings import InputExternalEncodingCodeGenerator
+from .external_encodings import OutputExternalEncodingCodeGenerator
+from .external_encodings import random_affine_external_encoding
+from .external_encodings import random_linear_external_encoding
+from .self_equivalences.anf import AffineSelfEquivalenceProvider
+from .self_equivalences.anf import LinearSelfEquivalenceProvider
 
-parser = ArgumentParser(description="Generate a white-box Speck implementation using self-equivalence encodings")
+parser = ArgumentParser(prog="sage -python -m white_box_speck", description="Generate a white-box Speck implementation using self-equivalence encodings")
 parser.add_argument("key", nargs="+", help="the key to use for the Speck implementation, a hexadecimal representation of the words")
 parser.add_argument("--block-size", nargs="?", type=int, default=128, choices=[32, 48, 64, 96, 128], help="the block size in bits of the Speck implementation (default: %(default)i)")
 parser.add_argument("--key-size", nargs="?", type=int, default=256, choices=[64, 72, 96, 128, 144, 192, 256], help="the key size in bits of the Speck implementation (default: %(default)i)")

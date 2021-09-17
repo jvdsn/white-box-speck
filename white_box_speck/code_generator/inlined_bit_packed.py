@@ -1,4 +1,4 @@
-from code_generator.bit_packed import BitPackedCodeGenerator
+from .bit_packed import BitPackedCodeGenerator
 
 
 class InlinedBitPackedCodeGenerator(BitPackedCodeGenerator):

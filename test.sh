@@ -55,7 +55,7 @@ STRATEGIES=(
 for ((i = 0; i < ${#BLOCK_SIZES[@]}; i++)); do
     for self_equivalences in "${SELF_EQUIVALENCES[@]}"; do
         echo "Testing Speck${BLOCK_SIZES[i]}/${KEY_SIZES[i]} with $self_equivalences self equivalences and key '${KEYS[i]}'"
-        sage -python src/main.py --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --self-equivalences $self_equivalences $DEBUG ${KEYS[i]}
+        sage -python -m white_box_speck --block-size ${BLOCK_SIZES[i]} --key-size ${KEY_SIZES[i]} --self-equivalences $self_equivalences $DEBUG ${KEYS[i]}
 
         gcc -o inverse_input_external_encoding inverse_input_external_encoding.c
         gcc -o inverse_output_external_encoding inverse_output_external_encoding.c
