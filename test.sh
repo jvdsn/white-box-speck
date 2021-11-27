@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set this to --debug to enable debug output
+# Set this to --debug to enable debug output.
 DEBUG=""
 BLOCK_SIZES=(32 48 48 64 64 96 96 128 128 128)
 KEY_SIZES=(64 72 96 96 128 96 144 128 192 256)
