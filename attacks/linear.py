@@ -6,7 +6,9 @@ from random import randint
 from sage.all import GF
 from sage.all import vector
 
-sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.realpath(os.path.abspath(__file__)))))
+path = os.path.dirname(os.path.dirname(os.path.realpath(os.path.abspath(__file__))))
+if sys.path[1] != path:
+    sys.path.insert(1, path)
 
 from attacks import inverse_key_schedule
 from white_box_speck.external_encodings import random_linear_external_encoding
