@@ -80,7 +80,8 @@ class BitPackedCodeGenerator(CodeGenerator):
     def _includes(self):
         return self._INCLUDE_INTTYPES + \
                self._INCLUDE_STDDEF + \
-               self._INCLUDE_STDIO
+               self._INCLUDE_STDIO + \
+               self._INCLUDE_STDLIB
 
     def _define_word_constant_type(self, word_size):
         assert word_size in self._WORD_TYPES, f"Invalid or unsupported word size {word_size}"

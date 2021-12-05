@@ -21,6 +21,7 @@ class SIMDCodeGenerator(BitPackedCodeGenerator):
         return self._INCLUDE_INTTYPES + \
                self._INCLUDE_STDDEF + \
                self._INCLUDE_STDIO + \
+               self._INCLUDE_STDLIB + \
                self._INCLUDE_IMMINTRIN
 
     def _define_simd_packed_count(self, simd_packed_count):

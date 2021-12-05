@@ -62,6 +62,18 @@ This will properly chain the inverse input and output external encodings with th
 ## Performance
 In general, the bit-packed code generation strategy is the most efficient overall strategy. However, this depends on block size and your performance goals. For a comprehensive overview, refer to Implementation chapter of my master's thesis.
 
+The performance of a specific strategy can be tested by providing an iterations argument to a `speck` executable. The following example will perform Speck encryption 1000000 times:
+```
+gcc -march=native -o speck default_white_box_speck.c
+perf stat --detailed ./speck 1000000
+```
+
+Additionally, we include a convenient script to test the performance of all strategies and compare them to a reference implementation:
+```
+./test_performance.sh 32 64 '1918 1110 0908 0100' 1000000
+```
+Note: this script only works for Speck implementations with block size 32, 64, and 128.
+
 ## Some examples
 
 Generating a white-box `Speck32/64` implementation using only linear self-equivalences (just for demonstration purposes, linear self-equivalences are very insecure):

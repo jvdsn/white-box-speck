@@ -35,6 +35,7 @@ class CodeGenerator(ABC):
     _INCLUDE_STDDEF = "#include <stddef.h>\n"
     _INCLUDE_STDIO = "#include <stdio.h>\n"
     _INCLUDE_STRING = "#include <string.h>\n"
+    _INCLUDE_STDLIB = "#include <stdlib.h>\n"
 
     _FROM_BITS = (
         "void from_bits(uint8_t bits[BLOCK_SIZE], WORD_TYPE *x, WORD_TYPE *y) {\n"
@@ -109,6 +110,7 @@ class CodeGenerator(ABC):
         return self._INCLUDE_INTTYPES + \
                self._INCLUDE_STDDEF + \
                self._INCLUDE_STDIO + \
+               self._INCLUDE_STDLIB + \
                self._INCLUDE_STRING
 
     def _define_block_size(self, block_size):
@@ -167,9 +169,19 @@ class CodeGenerator(ABC):
     def _main(self):
         return (
             f"int main(int argc, char *argv[]) {{\n"
+            f"    if (argc < 2) {{\n"
+            f"        return -1;\n"
+            f"    }}\n"
             f"    WORD_TYPE p[2];\n"
             f"    WORD_TYPE c[2];\n"
             f"    if (argc < 3) {{\n"
+            f"        size_t iterations;\n"
+            f"        sscanf(argv[1], \"%zu\", &iterations);\n"
+            f"        for (int i = 0; i < iterations; i++) {{\n"
+            f"            p[0] = (((WORD_TYPE) rand()) << (WORD_SIZE / 2)) | ((WORD_TYPE) rand());\n"
+            f"            p[1] = (((WORD_TYPE) rand()) << (WORD_SIZE / 2)) | ((WORD_TYPE) rand());\n"
+            f"            encrypt(p, c);\n"
+            f"        }}\n"
             f"        return -1;\n"
             f"    }} else {{\n"
             f"        sscanf(argv[1], \"%\" WORD_IN_TYPE, &p[0]);\n"
