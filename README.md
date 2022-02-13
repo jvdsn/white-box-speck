@@ -20,22 +20,22 @@ $ sage -python -m white_box_speck -h
 ```
 This will output the help dialogue with possible arguments, copied here for your convenience:
 ```
-usage: sage -python -m white_box_speck [-h] [--block-size [{32,48,64,96,128}]] [--key-size [{64,72,96,128,144,192,256}]] [--output-dir [OUTPUT_DIR]] [--self-equivalences [{affine,linear}]] [--debug] key [key ...]
+usage: sage -python -m white_box_speck [-h] [--block-size {32,48,64,96,128}] [--key-size {64,72,96,128,144,192,256}] [--output-dir OUTPUT_DIR] [--self-equivalences {affine,linear}] [--debug] key [key ...]
 
 Generate a white-box Speck implementation using self-equivalence encodings
 
 positional arguments:
   key                   the key to use for the Speck implementation, a hexadecimal representation of the words
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  --block-size [{32,48,64,96,128}]
+  --block-size {32,48,64,96,128}
                         the block size in bits of the Speck implementation (default: 128)
-  --key-size [{64,72,96,128,144,192,256}]
+  --key-size {64,72,96,128,144,192,256}
                         the key size in bits of the Speck implementation (default: 256)
-  --output-dir [OUTPUT_DIR]
+  --output-dir OUTPUT_DIR
                         the directory to output the C files to (default: .)
-  --self-equivalences [{affine,linear}]
+  --self-equivalences {affine,linear}
                         the type of self-equivalences to use (default: affine)
   --debug               log debug messages
 ```
