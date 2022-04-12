@@ -1,5 +1,5 @@
 ## Introduction 
-This repository contains the code for the paper "A White-Box Speck Implementation using Self-Equivalence Encodings", published at ACNS 2022, with a full version available on IACR ePrint. The main code can roughly be divided in five parts:
+This repository contains the code for the paper "A White-Box Speck Implementation using Self-Equivalence Encodings", published at ACNS 2022, with a full version [available on IACR ePrint](https://eprint.iacr.org/2022/444). The main code can roughly be divided in five parts:
 * `white_box_speck/code_generator/`: this directory contains all code related to output code generation, including the different code generation strategies.
 * `white_box_speck/self_equivalences/`: this directory contains all code related to the generation of (random) linear and affine self-equivalences, as well as combining these self-equivalences.
 * `white_box_speck/__init__.py`: this file contains the `WhiteBoxSpeck` class, responsible for generating the encoded matrices and vectors when a Speck key is provided.
@@ -60,7 +60,7 @@ $ ./inverse_output_external_encoding $(./speck $(./inverse_input_external_encodi
 This will properly chain the inverse input and output external encodings with the white-box implementation to present the expected ciphertext.
 
 ## Performance
-In general, the bit-packed code generation strategy is the most efficient overall strategy. However, this depends on block size and your performance goals. For a comprehensive overview, refer to Implementation chapter of my master's thesis.
+In general, the bit-packed code generation strategy is the most efficient overall strategy. However, this depends on block size and your performance goals. For a comprehensive overview, refer to Implementation section of https://eprint.iacr.org/2022/444.
 
 The performance of a specific strategy can be tested by providing an iterations argument to a `speck` executable. The following example will perform Speck encryption 1000000 times:
 ```
