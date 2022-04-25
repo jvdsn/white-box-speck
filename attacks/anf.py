@@ -67,8 +67,6 @@ def recover_coefficients_affine(sep, ring, M_, M, A, B, v_, v, a, b):
             extra.append(p)
 
     # We have to guess here, no more information.
-    print(c)
-    print(extra[0].variables())
     assert len(c) == ring.ngens() - 2
     assert len(extra) == 1 and extra[0].n_vars() == 2
     v = extra[0].variable(0)
@@ -118,7 +116,6 @@ def attack_affine_encodings(block_size, key_size, matrices, vectors):
     for i in range(3, key_words + 2):
         recovered_coefficients_guesses.append(recover_coefficients_affine(sep, ring, matrices[i], m_mid, A, B, vectors[i], v, a, b))
     recovered_coefficients_guesses.append(recover_coefficients_affine(sep, ring, matrices[wbs.rounds - 1], m_mid, A, B, vectors[wbs.rounds - 1], v, a, b))
-    print(key_words, len(recovered_coefficients_guesses))
 
     # Here, recovered_coefficients will be a tuple of maps, representing a possible guessed configuration.
     for recovered_coefficients in product(*recovered_coefficients_guesses):
@@ -281,16 +278,16 @@ def attack_linear_encodings_test(block_size, key_size):
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s %(message)s', datefmt='%Y-%m-%d,%H:%M:%S', level=logging.INFO)
 
-#    attack_linear_encodings_test(32, 64)
-#    attack_linear_encodings_test(48, 72)
-#    attack_linear_encodings_test(48, 96)
-#    attack_linear_encodings_test(64, 96)
-#    attack_linear_encodings_test(64, 128)
-#    attack_linear_encodings_test(96, 96)
-#    attack_linear_encodings_test(96, 144)
-#    attack_linear_encodings_test(128, 128)
-#    attack_linear_encodings_test(128, 192)
-#    attack_linear_encodings_test(128, 256)
+    attack_linear_encodings_test(32, 64)
+    attack_linear_encodings_test(48, 72)
+    attack_linear_encodings_test(48, 96)
+    attack_linear_encodings_test(64, 96)
+    attack_linear_encodings_test(64, 128)
+    attack_linear_encodings_test(96, 96)
+    attack_linear_encodings_test(96, 144)
+    attack_linear_encodings_test(128, 128)
+    attack_linear_encodings_test(128, 192)
+    attack_linear_encodings_test(128, 256)
     attack_affine_encodings_test(32, 64)
     attack_affine_encodings_test(48, 72)
     attack_affine_encodings_test(48, 96)
